@@ -9,7 +9,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _fullNameController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
@@ -17,7 +18,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -98,12 +100,13 @@ class _LoginPageState extends State<LoginPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Full Name Field
+                          // First Name Field
                           TextFormField(
-                            controller: _fullNameController,
+                            controller: _firstNameController,
                             keyboardType: TextInputType.text,
+                            textCapitalization: TextCapitalization.words,
                             decoration: const InputDecoration(
-                              labelText: 'Full Name',
+                              labelText: 'First Name',
                               prefixIcon: Icon(Icons.person_outlined),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.all(
@@ -112,8 +115,49 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your full name';
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your first name';
+                              }
+                              if (value.trim().length < 2) {
+                                return 'First name must be at least 2 characters';
+                              }
+                              if (value.trim().length > 50) {
+                                return 'First name must be less than 50 characters';
+                              }
+                              if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+                                return 'First name can only contain letters and spaces';
+                              }
+                              return null;
+                            },
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Last Name Field
+                          TextFormField(
+                            controller: _lastNameController,
+                            keyboardType: TextInputType.text,
+                            textCapitalization: TextCapitalization.words,
+                            decoration: const InputDecoration(
+                              labelText: 'Last Name',
+                              prefixIcon: Icon(Icons.person_outlined),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(12),
+                                ),
+                              ),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your last name';
+                              }
+                              if (value.trim().length < 2) {
+                                return 'Last name must be at least 2 characters';
+                              }
+                              if (value.trim().length > 50) {
+                                return 'Last name must be less than 50 characters';
+                              }
+                              if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value.trim())) {
+                                return 'Last name can only contain letters and spaces';
                               }
                               return null;
                             },
@@ -134,14 +178,85 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your email';
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please enter your email address';
                               }
-                              if (!RegExp(
-                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                              ).hasMatch(value)) {
-                                return 'Please enter a valid email';
+                              
+                              final email = value.trim();
+                              
+                              // Check total length first
+                              if (email.length > 254) {
+                                return 'Email address is too long';
                               }
+                              
+                              // Split into local and domain parts
+                              final parts = email.split('@');
+                              if (parts.length != 2) {
+                                return 'Please enter a valid email address';
+                              }
+                              
+                              final localPart = parts[0];
+                              final domainPart = parts[1];
+                              
+                              // Check for empty parts
+                              if (localPart.isEmpty) {
+                                return 'Invalid email address';
+                              }
+                              if (domainPart.isEmpty) {
+                                return 'Please enter a valid email address';
+                              }
+                              
+                              // Check local part length
+                              if (localPart.length > 64) {
+                                return 'The local part of the email is too long';
+                              }
+                              
+                              // Check domain part length
+                              if (domainPart.length > 253) {
+                                return 'Email address is too long';
+                              }
+                              
+                              // Check for leading/trailing dots in local part
+                              if (localPart.startsWith('.') || localPart.endsWith('.')) {
+                                return 'Invalid email address';
+                              }
+                              
+                              // Check for consecutive dots in local part
+                              if (localPart.contains('..')) {
+                                return 'Invalid email address';
+                              }
+                              
+                              // Check for leading/trailing dots in domain part
+                              if (domainPart.startsWith('.') || domainPart.endsWith('.')) {
+                                return 'Please enter a valid email address';
+                              }
+                              
+                              // Check for consecutive dots in domain part
+                              if (domainPart.contains('..')) {
+                                return 'Invalid email address';
+                              }
+                              
+                              // Check for domain dot
+                              if (!domainPart.contains('.')) {
+                                return 'Please enter a valid email address';
+                              }
+                              
+                              // Check TLD length (last part after final dot)
+                              final domainParts = domainPart.split('.');
+                              if (domainParts.length < 2) {
+                                return 'Please enter a valid email address';
+                              }
+                              final tld = domainParts.last;
+                              if (tld.length < 2) {
+                                return 'Please enter a valid email address';
+                              }
+                              
+                              // Final regex check for general format
+                              final emailRegex = RegExp(r"^[a-zA-Z0-9.!#\$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$");
+                              if (!emailRegex.hasMatch(email)) {
+                                return 'Please enter a valid email address';
+                              }
+                              
                               return null;
                             },
                           ),
@@ -176,8 +291,14 @@ class _LoginPageState extends State<LoginPage> {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your password';
                               }
-                              if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
+                              if (value.length < 8) {
+                                return 'Password must be at least 8 characters';
+                              }
+                              if (value.length > 128) {
+                                return 'Password must be less than 128 characters';
+                              }
+                              if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]').hasMatch(value)) {
+                                return 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character';
                               }
                               return null;
                             },
