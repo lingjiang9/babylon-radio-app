@@ -196,7 +196,7 @@ class DashboardTab extends StatelessWidget {
           final data = snapshot.data!;
           final firstName = data['firstName'] ?? '';
           final lastName = data['lastName'] ?? '';
-          welcomeText = 'Good Morning $lastName $firstName!';
+          welcomeText = 'Hey $lastName $firstName!';
         }
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -226,7 +226,7 @@ class DashboardTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Welcome to your Babylon Flutter App dashboard',
+                      'You are successfully logged in! Welcome back!',
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 16,
@@ -470,39 +470,77 @@ class ExploreTab extends StatelessWidget {
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
 
+  Future<Map<String, dynamic>?> _getUserInfo() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    return doc.data();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 50,
-            backgroundColor: Color(0xFF667eea),
-            child: Icon(
-              Icons.person,
-              size: 50,
-              color: Colors.white,
-            ),
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _getUserInfo(),
+      builder: (context, snapshot) {
+        String firstName = '';
+        String lastName = '';
+        String email = '';
+        if (snapshot.hasData && snapshot.data != null) {
+          final data = snapshot.data!;
+          firstName = data['firstName'] ?? '';
+          lastName = data['lastName'] ?? '';
+          email = data['email'] ?? '';
+        }
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircleAvatar(
+                radius: 50,
+                backgroundColor: Color(0xFF667eea),
+                child: Icon(
+                  Icons.person,
+                  size: 50,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'User Profile',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              if (firstName.isNotEmpty || lastName.isNotEmpty)
+                Text(
+                  'Name: $firstName $lastName',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.black87,
+                  ),
+                ),
+              if (email.isNotEmpty)
+                Text(
+                  'Email: $email',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    color: Colors.black87,
+                  ),
+                ),
+              if (firstName.isEmpty && lastName.isEmpty && email.isEmpty)
+                const Text(
+                  'No user details found.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+            ],
           ),
-          SizedBox(height: 16),
-          Text(
-            'User Profile',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            'Manage your account settings',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 } 
