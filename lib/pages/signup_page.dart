@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class SignupPage extends StatefulWidget {
+  const SignupPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<SignupPage> createState() => _SignupPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignupPageState extends State<SignupPage> {
   final _formKey = GlobalKey<FormState>();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
@@ -25,22 +27,33 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _handleLogin() async {
+  void _handleSignup() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
-
-      // Simulate login process
+      // Simulate signup process
       await Future.delayed(const Duration(seconds: 2));
-
       setState(() {
         _isLoading = false;
       });
-
-      // Navigate to home page
       if (mounted) {
+        final email = _emailController.text.trim();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Welcome, $email!')),
+        );
+        await Future.delayed(const Duration(seconds: 1));
         Navigator.of(context).pushReplacementNamed('/home');
+        final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+          'firstName': _firstNameController.text.trim(),
+          'lastName': _lastNameController.text.trim(),
+          'email': _emailController.text.trim(),
+          'createdAt': FieldValue.serverTimestamp(),
+        });
       }
     }
   }
@@ -63,11 +76,10 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Logo/App Name
                   const Icon(Icons.flutter_dash, size: 80, color: Colors.white),
                   const SizedBox(height: 16),
                   const Text(
-                    'Babylon Radio',
+                    'Create Account',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -76,12 +88,10 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Welcome back!',
+                    'Sign up to get started!',
                     style: TextStyle(fontSize: 16, color: Colors.white70),
                   ),
                   const SizedBox(height: 48),
-
-                  // Login Form
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -131,7 +141,6 @@ class _LoginPageState extends State<LoginPage> {
                             },
                           ),
                           const SizedBox(height: 16),
-
                           // Last Name Field
                           TextFormField(
                             controller: _lastNameController,
@@ -163,7 +172,6 @@ class _LoginPageState extends State<LoginPage> {
                             },
                           ),
                           const SizedBox(height: 16),
-
                           // Email Field
                           TextFormField(
                             controller: _emailController,
@@ -181,67 +189,43 @@ class _LoginPageState extends State<LoginPage> {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Please enter your email address';
                               }
-                              
                               final email = value.trim();
-                              
-                              // Check total length first
                               if (email.length > 254) {
                                 return 'Email address is too long';
                               }
-                              
-                              // Split into local and domain parts
                               final parts = email.split('@');
                               if (parts.length != 2) {
                                 return 'Please enter a valid email address';
                               }
-                              
                               final localPart = parts[0];
                               final domainPart = parts[1];
-                              
-                              // Check for empty parts
                               if (localPart.isEmpty) {
                                 return 'Invalid email address';
                               }
                               if (domainPart.isEmpty) {
                                 return 'Please enter a valid email address';
                               }
-                              
-                              // Check local part length
                               if (localPart.length > 64) {
                                 return 'The local part of the email is too long';
                               }
-                              
-                              // Check domain part length
                               if (domainPart.length > 253) {
                                 return 'Email address is too long';
                               }
-                              
-                              // Check for leading/trailing dots in local part
                               if (localPart.startsWith('.') || localPart.endsWith('.')) {
                                 return 'Invalid email address';
                               }
-                              
-                              // Check for consecutive dots in local part
                               if (localPart.contains('..')) {
                                 return 'Invalid email address';
                               }
-                              
-                              // Check for leading/trailing dots in domain part
                               if (domainPart.startsWith('.') || domainPart.endsWith('.')) {
                                 return 'Please enter a valid email address';
                               }
-                              
-                              // Check for consecutive dots in domain part
                               if (domainPart.contains('..')) {
                                 return 'Invalid email address';
                               }
-                              
-                              // Check for domain dot
                               if (!domainPart.contains('.')) {
                                 return 'Please enter a valid email address';
                               }
-                              
-                              // Check TLD length (last part after final dot)
                               final domainParts = domainPart.split('.');
                               if (domainParts.length < 2) {
                                 return 'Please enter a valid email address';
@@ -250,18 +234,14 @@ class _LoginPageState extends State<LoginPage> {
                               if (tld.length < 2) {
                                 return 'Please enter a valid email address';
                               }
-                              
-                              // Final regex check for general format
                               final emailRegex = RegExp(r"^[a-zA-Z0-9.!#\$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$");
                               if (!emailRegex.hasMatch(email)) {
                                 return 'Please enter a valid email address';
                               }
-                              
                               return null;
                             },
                           ),
                           const SizedBox(height: 16),
-
                           // Password Field
                           TextFormField(
                             controller: _passwordController,
@@ -303,23 +283,9 @@ class _LoginPageState extends State<LoginPage> {
                               return null;
                             },
                           ),
-                          const SizedBox(height: 8),
-
-                          // Forgot Password
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () {
-                                // Handle forgot password
-                              },
-                              child: const Text('Forgot Password?'),
-                            ),
-                          ),
                           const SizedBox(height: 24),
-
-                          // Login Button
                           ElevatedButton(
-                            onPressed: _isLoading ? null : _handleLogin,
+                            onPressed: _isLoading ? null : _handleSignup,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF667eea),
                               foregroundColor: Colors.white,
@@ -340,7 +306,7 @@ class _LoginPageState extends State<LoginPage> {
                                     ),
                                   )
                                 : const Text(
-                                    'Login',
+                                    'Sign Up',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -348,18 +314,16 @@ class _LoginPageState extends State<LoginPage> {
                                   ),
                           ),
                           const SizedBox(height: 16),
-
-                          // Sign Up Link
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Text("Don't have an account? "),
+                              const Text('Already have an account? '),
                               TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).pushReplacementNamed('/signup');
+                                  Navigator.of(context).pushReplacementNamed('/login');
                                 },
                                 child: const Text(
-                                  'Sign Up',
+                                  'Login',
                                   style: TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -377,4 +341,4 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-}
+} 
