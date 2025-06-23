@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,7 +23,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Babylon Flutter App',
+          'Babylon Radio App',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color(0xFF667eea),
@@ -177,123 +179,142 @@ class _HomePageState extends State<HomePage> {
 class DashboardTab extends StatelessWidget {
   const DashboardTab({super.key});
 
+  Future<Map<String, dynamic>?> _getUserInfo() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return null;
+    final doc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+    return doc.data();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Welcome Section
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-              ),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Good Morning!',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Welcome to your Babylon Flutter App dashboard',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 24),
-
-          // Quick Actions
-          const Text(
-            'Quick Actions',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _getUserInfo(),
+      builder: (context, snapshot) {
+        String welcomeText = 'Good Morning!';
+        if (snapshot.hasData && snapshot.data != null) {
+          final data = snapshot.data!;
+          final firstName = data['firstName'] ?? '';
+          final lastName = data['lastName'] ?? '';
+          welcomeText = 'Good Morning $lastName $firstName!';
+        }
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildActionCard(
-                icon: Icons.add_circle_outline,
-                title: 'Create New',
+              // Welcome Section
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      welcomeText,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Welcome to your Babylon Flutter App dashboard',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Quick Actions
+              const Text(
+                'Quick Actions',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                children: [
+                  _buildActionCard(
+                    icon: Icons.add_circle_outline,
+                    title: 'Create New',
+                    color: Colors.blue,
+                    onTap: () {},
+                  ),
+                  _buildActionCard(
+                    icon: Icons.search,
+                    title: 'Search',
+                    color: Colors.green,
+                    onTap: () {},
+                  ),
+                  _buildActionCard(
+                    icon: Icons.favorite_border,
+                    title: 'Favorites',
+                    color: Colors.red,
+                    onTap: () {},
+                  ),
+                  _buildActionCard(
+                    icon: Icons.history,
+                    title: 'Recent',
+                    color: Colors.orange,
+                    onTap: () {},
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Recent Activity
+              const Text(
+                'Recent Activity',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              _buildActivityItem(
+                icon: Icons.file_copy,
+                title: 'Document Created',
+                subtitle: 'New project file added',
+                time: '2 hours ago',
                 color: Colors.blue,
-                onTap: () {},
               ),
-              _buildActionCard(
-                icon: Icons.search,
-                title: 'Search',
+              _buildActivityItem(
+                icon: Icons.edit,
+                title: 'File Updated',
+                subtitle: 'Project settings modified',
+                time: '4 hours ago',
                 color: Colors.green,
-                onTap: () {},
               ),
-              _buildActionCard(
-                icon: Icons.favorite_border,
-                title: 'Favorites',
-                color: Colors.red,
-                onTap: () {},
-              ),
-              _buildActionCard(
-                icon: Icons.history,
-                title: 'Recent',
+              _buildActivityItem(
+                icon: Icons.share,
+                title: 'File Shared',
+                subtitle: 'Document shared with team',
+                time: '1 day ago',
                 color: Colors.orange,
-                onTap: () {},
               ),
             ],
           ),
-          const SizedBox(height: 24),
-
-          // Recent Activity
-          const Text(
-            'Recent Activity',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 16),
-          _buildActivityItem(
-            icon: Icons.file_copy,
-            title: 'Document Created',
-            subtitle: 'New project file added',
-            time: '2 hours ago',
-            color: Colors.blue,
-          ),
-          _buildActivityItem(
-            icon: Icons.edit,
-            title: 'File Updated',
-            subtitle: 'Project settings modified',
-            time: '4 hours ago',
-            color: Colors.green,
-          ),
-          _buildActivityItem(
-            icon: Icons.share,
-            title: 'File Shared',
-            subtitle: 'Document shared with team',
-            time: '1 day ago',
-            color: Colors.orange,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

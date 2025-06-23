@@ -38,9 +38,10 @@ class _SignupPageState extends State<SignupPage> {
         _isLoading = false;
       });
       if (mounted) {
-        final email = _emailController.text.trim();
+        final firstName = _firstNameController.text.trim();
+        final lastName = _lastNameController.text.trim();
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Welcome, $email!')),
+          SnackBar(content: Text('Welcome, $firstName $lastName!')),
         );
         await Future.delayed(const Duration(seconds: 1));
         Navigator.of(context).pushReplacementNamed('/home');
