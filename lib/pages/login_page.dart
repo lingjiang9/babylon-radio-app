@@ -3,7 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final FirebaseAuth firebaseAuth;
+  final FirebaseFirestore firebaseFirestore;
+
+  const LoginPage({
+    Key? key,
+    FirebaseAuth? firebaseAuth,
+    FirebaseFirestore? firebaseFirestore,
+  })  : firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+        firebaseFirestore = firebaseFirestore ?? FirebaseFirestore.instance,
+        super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -34,12 +43,12 @@ class _LoginPageState extends State<LoginPage> {
       });
       try {
         // Try to sign in
-        final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        final userCredential = await widget.firebaseAuth.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
         // Fetch user info from Firestore
-        final userDoc = await FirebaseFirestore.instance
+        final userDoc = await widget.firebaseFirestore
             .collection('users')
             .doc(userCredential.user!.uid)
             .get();
