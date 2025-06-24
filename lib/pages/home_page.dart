@@ -65,11 +65,14 @@ class _HomePageState extends State<HomePage> {
                 })(),
                 builder: (context, snapshot) {
                   String welcomeText = 'Welcome User!';
+                  String emailText = '';
                   if (snapshot.hasData && snapshot.data != null && snapshot.data!.exists) {
                     final data = snapshot.data!.data();
                     final firstName = data?['firstName'] ?? '';
                     final lastName = data?['lastName'] ?? '';
+                    final email = data?['email'] ?? '';
                     welcomeText = 'Welcome $lastName $firstName!';
+                    emailText = email;
                   }
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,6 +95,14 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      if (emailText.isNotEmpty)
+                        Text(
+                          emailText,
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
                     ],
                   );
                 },
