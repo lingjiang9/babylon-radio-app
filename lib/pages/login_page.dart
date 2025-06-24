@@ -68,6 +68,8 @@ class _LoginPageState extends State<LoginPage> {
           message = 'Incorrect password.';
         } else if (e.code == 'invalid-email') {
           message = 'The email address is invalid.';
+        } else if (e.code == 'invalid-credential') {
+          message = 'Incorrect email or password.';
         } else {
           message = e.message ?? message;
         }
@@ -157,6 +159,16 @@ class _LoginPageState extends State<LoginPage> {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Please enter your email address';
                               }
+                              final email = value.trim();
+                              if (email.length > 254) {
+                                return 'Email address is too long';
+                              }
+                              final emailRegex = RegExp(
+                                r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                              );
+                              if (!emailRegex.hasMatch(email)) {
+                                return 'Please enter a valid email address';
+                              }
                               return null;
                             },
                           ),
@@ -189,6 +201,12 @@ class _LoginPageState extends State<LoginPage> {
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Please enter your password';
+                              }
+                              if (value.length < 8) {
+                                return 'Password must be at least 8 characters';
+                              }
+                              if (value.length > 128) {
+                                return 'Password must be less than 128 characters';
                               }
                               return null;
                             },
