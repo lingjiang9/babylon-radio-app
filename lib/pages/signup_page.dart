@@ -51,6 +51,18 @@ class _SignupPageState extends State<SignupPage> {
         }
         // Simulate signup process
         await Future.delayed(const Duration(seconds: 2));
+        // Create the user in FirebaseAuth
+        final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+        // Write user data to Firestore and wait for it to finish
+        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+          'firstName': _firstNameController.text.trim(),
+          'lastName': _lastNameController.text.trim(),
+          'email': _emailController.text.trim(),
+          'createdAt': FieldValue.serverTimestamp(),
+        });
         setState(() {
           _isLoading = false;
         });
@@ -58,20 +70,10 @@ class _SignupPageState extends State<SignupPage> {
           final firstName = _firstNameController.text.trim();
           final lastName = _lastNameController.text.trim();
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Welcome, $firstName $lastName!')),
+            SnackBar(content: Text('Thank you for signing up, $firstName $lastName!')),
           );
           await Future.delayed(const Duration(seconds: 1));
           Navigator.of(context).pushReplacementNamed('/home');
-          final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: _emailController.text.trim(),
-            password: _passwordController.text,
-          );
-          await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-            'firstName': _firstNameController.text.trim(),
-            'lastName': _lastNameController.text.trim(),
-            'email': _emailController.text.trim(),
-            'createdAt': FieldValue.serverTimestamp(),
-          });
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
