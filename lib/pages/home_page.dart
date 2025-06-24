@@ -54,35 +54,47 @@ class _HomePageState extends State<HomePage> {
                   colors: [Color(0xFF667eea), Color(0xFF764ba2)],
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
-                      size: 35,
-                      color: Color(0xFF667eea),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Welcome User!',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const Text(
-                    'user@example.com',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
+              child: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                future: (() {
+                  final user = FirebaseAuth.instance.currentUser;
+                  if (user == null) {
+                    // Return a dummy doc that will not exist
+                    return FirebaseFirestore.instance.collection('users').doc('dummy').get();
+                  }
+                  return FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+                })(),
+                builder: (context, snapshot) {
+                  String welcomeText = 'Welcome User!';
+                  if (snapshot.hasData && snapshot.data != null && snapshot.data!.exists) {
+                    final data = snapshot.data!.data();
+                    final firstName = data?['firstName'] ?? '';
+                    final lastName = data?['lastName'] ?? '';
+                    welcomeText = 'Welcome $lastName $firstName!';
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          Icons.person,
+                          size: 35,
+                          color: Color(0xFF667eea),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        welcomeText,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
             ListTile(
@@ -226,7 +238,7 @@ class DashboardTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'You are successfully logged in! Welcome back!',
+                      'You are successfully logged in!',
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 16,
