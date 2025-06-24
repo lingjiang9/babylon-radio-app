@@ -32,28 +32,53 @@ class _SignupPageState extends State<SignupPage> {
       setState(() {
         _isLoading = true;
       });
-      // Simulate signup process
-      await Future.delayed(const Duration(seconds: 2));
-      setState(() {
-        _isLoading = false;
-      });
-      if (mounted) {
-        final firstName = _firstNameController.text.trim();
-        final lastName = _lastNameController.text.trim();
+      try {
+        final email = _emailController.text.trim();
+        // Check if email already exists in Firestore
+        final query = await FirebaseFirestore.instance
+            .collection('users')
+            .where('email', isEqualTo: email)
+            .limit(1)
+            .get();
+        if (query.docs.isNotEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('This email is already registered.')),
+          );
+          setState(() {
+            _isLoading = false;
+          });
+          return;
+        }
+        // Simulate signup process
+        await Future.delayed(const Duration(seconds: 2));
+        setState(() {
+          _isLoading = false;
+        });
+        if (mounted) {
+          final firstName = _firstNameController.text.trim();
+          final lastName = _lastNameController.text.trim();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Welcome, $firstName $lastName!')),
+          );
+          await Future.delayed(const Duration(seconds: 1));
+          Navigator.of(context).pushReplacementNamed('/home');
+          final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
+          );
+          await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+            'firstName': _firstNameController.text.trim(),
+            'lastName': _lastNameController.text.trim(),
+            'email': _emailController.text.trim(),
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Welcome, $firstName $lastName!')),
+          SnackBar(content: Text('Error: $e')),
         );
-        await Future.delayed(const Duration(seconds: 1));
-        Navigator.of(context).pushReplacementNamed('/home');
-        final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _passwordController.text,
-        );
-        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
-          'firstName': _firstNameController.text.trim(),
-          'lastName': _lastNameController.text.trim(),
-          'email': _emailController.text.trim(),
-          'createdAt': FieldValue.serverTimestamp(),
+        setState(() {
+          _isLoading = false;
         });
       }
     }

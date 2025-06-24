@@ -527,7 +527,7 @@ class ProfileTab extends StatelessWidget {
               const SizedBox(height: 8),
               if (firstName.isNotEmpty || lastName.isNotEmpty)
                 Text(
-                  'Name: $firstName $lastName',
+                  'Full Name: $firstName $lastName',
                   style: const TextStyle(
                     fontSize: 18,
                     color: Colors.black87,
