@@ -1,4 +1,4 @@
-# Babylon Radio Flutter App Assessment
+# Flutter App Assessment
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.0%2B-blue)](https://flutter.dev)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](#)
@@ -49,14 +49,15 @@ This is a cross-platform Flutter app supporting iOS, Android, and macOS desktop.
 ---
 
 ## Screenshots
-Login page
+### Login page
 ![Login Screen](screenshots/login.jpg)
-Sign up page
+### Sign up page
 ![Signup Screen](screenshots/signup.jpg)
-Log out page
-![Drawer Screen](screenshots/logout.png)
-Sign up and login page
+### Sign up and login validation page
 ![Login Validation Screen](screenshots/validation.jpg)
+### Log out page
+![Drawer Screen](screenshots/logout.png)
+
 
 ---
 
@@ -200,4 +201,6 @@ For questions, contact **Ling Jiang** at [jiangling9981@gmail.com].
 
 ## License
 
-This project is for demo purposes.
+© 2025 Ling Jiang. All rights reserved.
+This project is licensed under the MIT License.
+
