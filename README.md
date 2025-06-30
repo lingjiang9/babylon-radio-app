@@ -53,7 +53,7 @@ This is a cross-platform Flutter app supporting iOS, Android, and macOS desktop.
 ![Login Screen](screenshots/login.jpg)
 ![Signup Screen](screenshots/signup.jpg)
 ![Drawer Screen](screenshots/logout.png)
-![Login Validation Screen](screenshots/loginvalidation.png)
+![Login Validation Screen](screenshots/validation.png)
 
 ---
 
