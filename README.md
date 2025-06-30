@@ -1,4 +1,4 @@
-# Babylon Radio Flutter Assessment
+# Babylon Radio Flutter App Assessment
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.0%2B-blue)](https://flutter.dev)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](#)
@@ -8,7 +8,7 @@
 
 ## Overview
 
-## This is a cross-platform Flutter app (iOS, Android, macOS desktop) featuring login/signup with Firebase Authentication and a personalized welcome home page.
+This is a cross-platform Flutter app supporting iOS, Android, and macOS desktop. It features user authentication with Firebase Authentication (login/signup), stores user data in Firestore database, and displays a personalized welcome home page.
 
 ## Features
 
@@ -24,7 +24,7 @@
 
   - First name, last name, email, and password fields
   - Strong validation for all fields (length, format, allowed characters)
-  - Checks for existing email in Firestore
+  - Checks for existing email in Firestore database users collection
   - Register new users and store their full name and email
   - Success and error feedback via SnackBar
 
@@ -33,6 +33,7 @@
   - Personalized welcome message ("Hey, <user name>, you are successfully logged in!") from Firestore
   - Drawer with user info, navigation, and logout
   - Bottom navigation bar (Dashboard, Explore, Profile)
+    - Profile displays user info
 
 - **Firebase Integration**
 
@@ -53,7 +54,6 @@
 ![Signup Screen](screenshots/signup.jpg)
 ![Drawer Screen](screenshots/logout.png)
 ![Login Validation Screen](screenshots/loginvalidation.png)
-![Signup Validation Screen](screenshots/loginvalidation.png)
 
 ---
 
@@ -67,7 +67,6 @@
 - **Platform Tools:**
   - **Android:** Android Studio, Android SDK, emulator/device
   - **iOS/macOS:** Xcode, CocoaPods, simulator/device (macOS only runs on Mac)
-  - **Windows/Linux:** Visual Studio (Windows), GTK (Linux), see [Flutter desktop docs](https://docs.flutter.dev/desktop)
 
 ### 1. Clone the Repository
 
@@ -106,7 +105,7 @@ This will fetch all Dart and Flutter dependencies listed in `pubspec.yaml`.
 
 - **Android:**
 
-  - Open an emulator or connect a device.
+  - Open Android Studio emulator or connect a device.
 
 - **iOS/macOS:**
   - Run `cd ios && pod install` and `cd macos && pod install` if needed.
@@ -118,10 +117,7 @@ This will fetch all Dart and Flutter dependencies listed in `pubspec.yaml`.
   ```sh
   flutter run
   ```
-- **Web:**
-  ```sh
-  flutter run -d chrome
-  ```
+  then select your desired connected device from the list
 - **macOS**
   ```sh
   flutter run -d macos
@@ -132,17 +128,27 @@ This will fetch all Dart and Flutter dependencies listed in `pubspec.yaml`.
 ## Project Structure
 
 ```
-lib/
-  main.dart                # App entry point, routing
-  pages/
-    login_page.dart        # Login UI and logic
-    signup_page.dart       # Signup UI and logic
-    home_page.dart         # Home/dashboard UI
-  firebase_options.dart    # Firebase config (auto-generated)
-test/
-  login_page_test.dart         # Widget & validation tests for login
-  signup_validation_test.dart  # Widget & validation tests for signup
-  login_firestore_test.dart    # Widget test for login with mocked Firebase
+babylon_flutter_app/
+├── lib/
+│   ├── main.dart                # App entry point
+│   ├── firebase_options.dart    # Firebase config (auto-generated)
+│   └── pages/
+│       ├── login_page.dart      # Login screen
+│       ├── signup_page.dart     # Signup screen
+│       └── home_page.dart       # Home screen
+├── assets/
+│   └── fonts/
+│       └── roboto/              # Roboto font files
+├── test/
+│   ├── login_page_test.dart     # Widget/validation tests
+│   ├── signup_validation_test.dart
+│   └── login_logic_unit_test.dart
+├── pubspec.yaml                 # Project config (dependencies, assets, fonts)
+├── README.md                    # Project documentation
+├── android/                     # Android native code (auto-generated)
+├── ios/                         # iOS native code (auto-generated)
+├── macos/                       # macOS native code (auto-generated)
+└── screenshots/                 # (Optional) App screenshots for README
 ```
 
 ---
@@ -175,10 +181,10 @@ flutter test
 ## Future Improvements
 
 - Add password reset functionality.
-- Improve accessibility (a11y) and localization.
+- Improve accessibility and localization.
 - Add integration tests for navigation flows.
+- Improve code quality.
 - Add CI/CD pipeline for automated testing and builds.
-- Add dark mode and theme customization.
 - Add user profile editing and avatar upload.
 
 ---
@@ -191,4 +197,4 @@ For questions, contact **Ling Jiang** at [jiangling9981@gmail.com].
 
 ## License
 
-This project is for educational/demo purposes. Add your own license as needed.
+This project is for demo purposes.
