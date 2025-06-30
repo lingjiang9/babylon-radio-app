@@ -49,13 +49,11 @@
 
 ## Screenshots
 
-![Login Screen](screenshots/loginpage.png)
-![Signup Screen](screenshots/signuppage.png)
-![Home Screen](screenshots/homepage.png)
-![Drawer Screen](screenshots/drawer.png)
+![Login Screen](screenshots/login.jpg)
+![Signup Screen](screenshots/signup.jpg)
+![Drawer Screen](screenshots/logout.png)
 ![Login Validation Screen](screenshots/loginvalidation.png)
-![Signup Validation Screen](screenshots/signuppage.png)
-![Profile Screen](screenshots/signuppage.png)
+![Signup Validation Screen](screenshots/loginvalidation.png)
 
 ---
 
