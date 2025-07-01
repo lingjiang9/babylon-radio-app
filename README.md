@@ -1,4 +1,4 @@
-# Babylon Radio Flutter App Assessment
+# Flutter App Assessment
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.8.0%2B-blue)](https://flutter.dev)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](#)
@@ -202,4 +202,5 @@ For questions, contact **Ling Jiang** at [jiangling9981@gmail.com].
 
 ## License
 
-This project is for demo purposes.
+© 2025 Ling Jiang. All rights reserved.
+This project is licensed under the MIT License.
