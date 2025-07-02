@@ -3,7 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+  final FirebaseAuth firebaseAuth;
+  final FirebaseFirestore firebaseFirestore;
+
+  const SignupPage({
+    Key? key,
+    FirebaseAuth? firebaseAuth,
+    FirebaseFirestore? firebaseFirestore,
+  })  : firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+        firebaseFirestore = firebaseFirestore ?? FirebaseFirestore.instance,
+        super(key: key);
 
   @override
   State<SignupPage> createState() => _SignupPageState();
@@ -34,8 +43,8 @@ class _SignupPageState extends State<SignupPage> {
       });
       try {
         final email = _emailController.text.trim();
-        // Check if email already exists in Firestore
-        final query = await FirebaseFirestore.instance
+        // Use injected Firestore
+        final query = await widget.firebaseFirestore
             .collection('users')
             .where('email', isEqualTo: email)
             .limit(1)
@@ -51,13 +60,13 @@ class _SignupPageState extends State<SignupPage> {
         }
         // Simulate signup process
         await Future.delayed(const Duration(seconds: 2));
-        // Create the user in FirebaseAuth
-        final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        // Use injected Auth
+        final userCredential = await widget.firebaseAuth.createUserWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
-        // Write user data to Firestore and wait for it to finish
-        await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        // Use injected Firestore
+        await widget.firebaseFirestore.collection('users').doc(userCredential.user!.uid).set({
           'firstName': _firstNameController.text.trim(),
           'lastName': _lastNameController.text.trim(),
           'email': _emailController.text.trim(),
